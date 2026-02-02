@@ -1,12 +1,13 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"slices"
+)
 
 /* slices : 1. dynamic array
 2. most useful construct in go
 3. useful methods like arrays
-
-
 */
 
 func main() {
@@ -49,6 +50,26 @@ func main() {
 	fmt.Println(cap(nums4))
 	fmt.Println(nums4)
 
-	// copy the slice 
+	// copy the slice  14:24
+	var nums5 = make([]int, len(nums3)) // taking the nums5 same as the length of the nums3. so that the nums3 can be added/copied in the nums5.
+	copy(nums5, nums3)                  // destination , source.
+	// note : the slice in which copied is done should not be empty initial length. it's length should be some number to which you want the niumber to be copied.
+	fmt.Println(nums3, nums5)
+
+	// slice operator:
+	var nums6 = []int{1, 2, 3}
+	fmt.Println((nums6[0:2])) // slice ":" till the index 0 to 2 excluded the index last (2 here) value.
+	//OR way:
+	fmt.Println((nums6[:1])) // when not initial value given then it is from the start.
+	fmt.Println((nums6[0:])) // similarly for the leaving the last value we will get till the end.
+
+	// "slices" package:
+	// various method inside, one of them is to check that two slices are equal or not.
+	fmt.Println(slices.Equal(nums3, nums5))
+	// this method compares one by one, one from each, then next.
+
+	// 2-D slices:
+	var nums7 = [][]int{{1, 2}, {3, 4, 5}}
+	fmt.Println(nums7)
 
 }
