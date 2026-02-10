@@ -27,6 +27,19 @@ func sum(result chan int, num1 int, num2 int) {
 
 }
 
+// goroutine synchronizer
+// we have taken the bool channel here in the function
+func task(done chan bool) {
+	defer func() { done <- true }() // this will call after the function call even when there is error in the method task.defer is mpstly used with function call.
+	// ai definition of defer : The defer keyword in Go is used to schedule a function call to run just before the surrounding function returns, making it a powerful tool for ensuring cleanup actions are executed reliably.
+	fmt.Println("processing.....")
+}
+
+// we will use this buffered channel.
+func sendEmail(emailChannel chan string) {
+
+}
+
 func main() {
 	// messageChan := make(chan string)
 	// simply create the variable and use the make method to pass to make the 'chan' keyword and then tell the type which is of the channel we made.
@@ -63,7 +76,7 @@ func main() {
 
 	//10:31
 
-	// but normally we don't send data like this for the one value. 
+	// but normally we don't send data like this for the one value.
 	// we send the data like the queue using the loop.
 
 	// for { // for loop inifinte ie. without condition
@@ -86,6 +99,35 @@ func main() {
 	result_recieved := <-result // this reading is blocking. so we don;t need sleep here.
 	fmt.Println("getting result from the goroutine to the main goroutine : ", result_recieved)
 
-	//18:32
+	//18:00
+
+	done := make(chan bool)
+	go task(done)
+
+	// now to stop until our goroutines are completed other than main, so we will need something blocking and we know that the sending and reciving part of the channel are blocking.
+	<-done //block, this recoieving value is block, we will not need to use the bool value returned here as the channel 'done' when get the value true in the task method which is goroutine and this will make the <-done part gets unblocked. the bool true passed to the done when the gorotuine are completed in the task as the defer will make the call at the end.
+
+	// so, we can do that completion of the goroutine with the channel as well other than goroutine.
+	// mostly, we will use the channel when we have a single goroutine then we use this channel otherwise for the multiple task use the waitgroup is more useful as it has the counter.
+
+	//23:51
+	// until now, we have seen the unbuffered channel. the problem is with the sending and recieving with it, is blocking. until, sending and recieving is being processed, we have to wait. but, if we have to build something queue system where everything is send immediately. then we can use the buffered channel.
+	// in unbuffered channel, we can send the data from the one goroutine to another but the buffered one is blocking. ie. it is send one by one
+	// But in buffered, we can send the limited amount of data without blocking.
+
+	// we will see a queue implmentation, for a email using the buffered channel.
+
+	emailChannel := make(chan string, 100) // in IRL, we will send the structure as we have to send the metadata as well.
+	// here we are passing the size for the buffered channel as well as the second parameter.
+
+	emailChannel <- "rahul@apple.com" // sending data to channel, non blocking.
+	emailChannel <- "rk@apple.com"    // sending data to channel, non blocking.
+
+	fmt.Println("email channel : ", <-emailChannel) // this will get printed and not get the error as we have used the buffered channel and till the memory is finished, this will be not blocked.
+	fmt.Println("email channel : ", <-emailChannel) // this will get printed and not get the error as we have used the buffered channel and till the memory is finished, this will be not blocked.
+
+	// now we will apply the queue to send the email to the users for which we are gettting from the DB and we have to send them in batch with emailSender method we will make ourself as:
+	// here we will use the two channels one to send and other to track the gorotuines are completed then mains should be completed.
+	// 27:10
 
 }
