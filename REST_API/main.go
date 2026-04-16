@@ -13,6 +13,7 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/rahulkumarpahwa/go/REST_API/internal/config"
+	"github.com/rahulkumarpahwa/go/REST_API/internal/http/handlers/student"
 )
 
 func main() {
@@ -34,6 +35,7 @@ func main() {
 	router := http.NewServeMux()
 
 	router.HandleFunc("GET /", Health)
+	router.HandleFunc("POST /api/students", student.CreateStudent)
 
 	// setup server
 	server := http.Server{
