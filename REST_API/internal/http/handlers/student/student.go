@@ -34,7 +34,7 @@ func CreateStudent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = response.WriteJson(w, http.StatusCreated, response.Envelope{"Message": "Student Created Successfully!", "Student": struct{}{}})
+	err = response.WriteJson(w, http.StatusCreated, response.Response{Status: response.StatusOK})
 	if err != nil {
 		response.WriteJson(w, http.StatusBadRequest, response.GeneralError(err))
 		return

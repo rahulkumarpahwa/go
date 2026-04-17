@@ -9,12 +9,10 @@ import (
 	"github.com/go-playground/validator"
 )
 
-type Envelope map[string]any
 
 type Response struct {
 	Status string `json:"status"`
 	Error  string `json:"error"`
-	Envelope
 }
 
 const (
