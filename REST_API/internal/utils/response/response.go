@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/go-playground/validator"
 )
@@ -39,17 +40,19 @@ func GeneralError(err error) Response {
 }
 
 func ValidationError(errors validator.ValidationErrors) Response {
-	var errMaps[]string
+	var errMaps []string
 
 	for _, err := range errors {
 		switch err.ActualTag() {
-		case "required" : 
+		case "required":
 			errMaps = append(errMaps, fmt.Sprintf("field %s is required field", err.Field()))
+		default:
+			errMaps = append(errMaps, fmt.Sprintf("field %s is invalid", err.Field()))
 		}
 	}
 
 	return Response{
 		Status: StatusError,
-		Error:  err.Error(),
+		Error:  strings.Join(errMaps, ", "),
 	}
 }

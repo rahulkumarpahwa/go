@@ -29,7 +29,8 @@ func CreateStudent(w http.ResponseWriter, r *http.Request) {
 	// request Validation:
 	err = validator.New().Struct(student)
 	if err != nil {
-		response.WriteJson(w, http.StatusBadRequest, response.GeneralError(err))
+		validateErrors := err.(validator.ValidationErrors) // typecasting the error into the slice
+		response.WriteJson(w, http.StatusBadRequest, response.ValidationError(validateErrors))
 		return
 	}
 
