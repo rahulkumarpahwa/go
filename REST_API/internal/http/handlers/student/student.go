@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/go-playground/validator"
 	"github.com/rahulkumarpahwa/go/REST_API/internal/types"
 	"github.com/rahulkumarpahwa/go/REST_API/internal/utils/response"
 )
@@ -26,8 +27,11 @@ func CreateStudent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// request Validation:
-	
-
+	err = validator.New().Struct(student)
+	if err != nil {
+		response.WriteJson(w, http.StatusBadRequest, response.GeneralError(err))
+		return
+	}
 
 	err = response.WriteJson(w, http.StatusCreated, response.Envelope{"Message": "Student Created Successfully!", "Student": struct{}{}})
 	if err != nil {

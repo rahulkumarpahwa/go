@@ -2,7 +2,10 @@ package response
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+
+	"github.com/go-playground/validator"
 )
 
 type Envelope map[string]any
@@ -29,6 +32,22 @@ func WriteJson(w http.ResponseWriter, status int, data any) error {
 }
 
 func GeneralError(err error) Response {
+	return Response{
+		Status: StatusError,
+		Error:  err.Error(),
+	}
+}
+
+func ValidationError(errors validator.ValidationErrors) Response {
+	var errMaps[]string
+
+	for _, err := range errors {
+		switch err.ActualTag() {
+		case "required" : 
+			errMaps = append(errMaps, fmt.Sprintf("field %s is required field", err.Field()))
+		}
+	}
+
 	return Response{
 		Status: StatusError,
 		Error:  err.Error(),
