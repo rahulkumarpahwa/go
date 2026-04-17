@@ -31,7 +31,7 @@ func main() {
 	// logger
 
 	// database setup
-	sqlite, err := sqlite.New(cfg)
+	_, err = sqlite.New(cfg)
 	if err != nil {
 		log.Fatalf("Failed to Connect DB: %v", err)
 	}
