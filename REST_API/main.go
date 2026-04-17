@@ -14,6 +14,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/rahulkumarpahwa/go/REST_API/internal/config"
 	"github.com/rahulkumarpahwa/go/REST_API/internal/http/handlers/student"
+	"github.com/rahulkumarpahwa/go/REST_API/internal/storage/sqlite"
 )
 
 func main() {
@@ -30,6 +31,10 @@ func main() {
 	// logger
 
 	// database setup
+	sqlite, err := sqlite.New(cfg)
+	if err != nil {
+		log.Fatalf("Failed to Connect DB: %v", err)
+	}
 
 	// setup router
 	router := http.NewServeMux()
