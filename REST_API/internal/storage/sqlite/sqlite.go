@@ -33,3 +33,9 @@ func New(cfg *config.Config) (*Sqlite, error) {
 
 	return &Sqlite{DB: db}, nil
 }
+
+func CreateStudent(name string, email string, age int) (int64, error) {
+	query := `INSERT INTO STUDENT (name, email, age) VALUES ($1, $2, $4) RETURNING id`
+
+	return 0, nil
+}

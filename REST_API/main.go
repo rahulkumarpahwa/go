@@ -36,11 +36,15 @@ func main() {
 		log.Fatalf("Failed to Connect DB: %v", err)
 	}
 
+	// Student Storage
+	
+
+
 	// setup router
 	router := http.NewServeMux()
 
 	router.HandleFunc("GET /", Health)
-	router.HandleFunc("POST /api/students", student.CreateStudent)
+	router.HandleFunc("POST /api/students", )
 
 	// setup server
 	server := http.Server{

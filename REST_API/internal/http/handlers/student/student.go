@@ -8,9 +8,15 @@ import (
 	"net/http"
 
 	"github.com/go-playground/validator"
+	"github.com/rahulkumarpahwa/go/REST_API/internal/storage/sqlite"
 	"github.com/rahulkumarpahwa/go/REST_API/internal/types"
 	"github.com/rahulkumarpahwa/go/REST_API/internal/utils/response"
 )
+
+type StudentHandler struct {
+	Sqlite *sqlite.Sqlite
+}
+
 
 func CreateStudent(w http.ResponseWriter, r *http.Request) {
 	var student types.Student
@@ -33,6 +39,8 @@ func CreateStudent(w http.ResponseWriter, r *http.Request) {
 		response.WriteJson(w, http.StatusBadRequest, response.ValidationError(validateErrors))
 		return
 	}
+
+	// DB call to create 
 
 	err = response.WriteJson(w, http.StatusCreated, response.Response{Status: response.StatusOK})
 	if err != nil {
