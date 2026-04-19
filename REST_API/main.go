@@ -46,6 +46,7 @@ func main() {
 	router.HandleFunc("GET /", Health)
 	router.HandleFunc("POST /api/students", studentHandler.CreateStudent)
 	router.HandleFunc("GET /api/students/{id}", studentHandler.GetStudentById)
+	router.HandleFunc("GET /api/students", studentHandler.GetStudentsList)
 
 	// setup server
 	server := http.Server{

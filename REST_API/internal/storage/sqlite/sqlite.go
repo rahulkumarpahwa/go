@@ -76,7 +76,7 @@ func (s *Sqlite) GetStudentById(id int) (*types.Student, error) {
 	return &student, nil
 }
 
-func (s *Sqlite) GetStudentList() ([]types.Student, error) {
+func (s *Sqlite) GetStudentsList() ([]types.Student, error) {
 
 	statement, err := s.DB.Prepare("SELECT id, name, email, age FROM students")
 	if err != nil {

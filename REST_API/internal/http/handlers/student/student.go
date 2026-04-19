@@ -84,3 +84,21 @@ func (h *StudentHandler) GetStudentById(w http.ResponseWriter, r *http.Request) 
 	}
 
 }
+
+
+func (h *StudentHandler) GetStudentsList(w http.ResponseWriter, r *http.Request) {
+
+	students, err := h.Storage.GetStudentsList()
+	if err != nil {
+		response.WriteJson(w, http.StatusInternalServerError, response.GeneralError(err))
+		return
+	}
+	slog.Info("Students List Founded Successfully!")
+
+	err = response.WriteJson(w, http.StatusOK, map[string]any{"Students List": students})
+	if err != nil {
+		response.WriteJson(w, http.StatusBadRequest, response.GeneralError(err))
+		return
+	}
+
+}
