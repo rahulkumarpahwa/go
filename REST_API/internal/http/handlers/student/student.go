@@ -85,7 +85,6 @@ func (h *StudentHandler) GetStudentById(w http.ResponseWriter, r *http.Request) 
 
 }
 
-
 func (h *StudentHandler) GetStudentsList(w http.ResponseWriter, r *http.Request) {
 
 	students, err := h.Storage.GetStudentsList()
@@ -96,6 +95,64 @@ func (h *StudentHandler) GetStudentsList(w http.ResponseWriter, r *http.Request)
 	slog.Info("Students List Founded Successfully!")
 
 	err = response.WriteJson(w, http.StatusOK, map[string]any{"Students List": students})
+	if err != nil {
+		response.WriteJson(w, http.StatusBadRequest, response.GeneralError(err))
+		return
+	}
+
+}
+
+func (h *StudentHandler) UpdateStudent(w http.ResponseWriter, r *http.Request) {
+	idstr := r.PathValue("id")
+
+	if idstr == "" {
+		response.WriteJson(w, http.StatusBadRequest, response.GeneralError(errors.New("Id not Found!")))
+		return
+	}
+
+	id, err := strconv.Atoi(idstr)
+	if err != nil {
+		response.WriteJson(w, http.StatusBadRequest, response.GeneralError(err))
+		return
+	}
+
+	student, err := h.Storage.UpdateStudent(id, name, age)
+	if err != nil {
+		response.WriteJson(w, http.StatusInternalServerError, response.GeneralError(err))
+		return
+	}
+	slog.Info("Student Founded Successfully!", slog.String("student", student.Name))
+
+	err = response.WriteJson(w, http.StatusOK, map[string]any{"Student": student})
+	if err != nil {
+		response.WriteJson(w, http.StatusBadRequest, response.GeneralError(err))
+		return
+	}
+
+}
+
+func (h *StudentHandler) DeleteStudent(w http.ResponseWriter, r *http.Request) {
+	idstr := r.PathValue("id")
+
+	if idstr == "" {
+		response.WriteJson(w, http.StatusBadRequest, response.GeneralError(errors.New("Id not Found!")))
+		return
+	}
+
+	id, err := strconv.Atoi(idstr)
+	if err != nil {
+		response.WriteJson(w, http.StatusBadRequest, response.GeneralError(err))
+		return
+	}
+
+	student, err := h.Storage.GetStudentById(id)
+	if err != nil {
+		response.WriteJson(w, http.StatusInternalServerError, response.GeneralError(err))
+		return
+	}
+	slog.Info("Student Founded Successfully!", slog.String("student", student.Name))
+
+	err = response.WriteJson(w, http.StatusOK, map[string]any{"Student": student})
 	if err != nil {
 		response.WriteJson(w, http.StatusBadRequest, response.GeneralError(err))
 		return
