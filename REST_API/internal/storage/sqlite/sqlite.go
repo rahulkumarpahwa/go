@@ -78,14 +78,14 @@ func (s *Sqlite) GetStudentById(id int) (*types.Student, error) {
 
 func (s *Sqlite) GetStudentsList() ([]types.Student, error) {
 
-	statement, err := s.DB.Prepare("SELECT id, name, email, age FROM students")
+	statement, err := s.DB.Prepare("SELECT id, name, email, age FROM students LIMIT $1")
 	if err != nil {
 		return nil, err
 	}
 	defer statement.Close()
 
 	var students []types.Student
-	rows, err := statement.Query()
+	rows, err := statement.Query(20)
 	for rows.Next() {
 		var student types.Student
 		err := rows.Scan(&student.Id, &student.Name, &student.Email, &student.Age)
