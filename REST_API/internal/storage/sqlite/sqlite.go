@@ -76,16 +76,22 @@ func (s *Sqlite) GetStudentById(id int) (*types.Student, error) {
 	return &student, nil
 }
 
-func (s *Sqlite) GetStudentsList() ([]types.Student, error) {
+func (s *Sqlite) GetStudentsList() ([]types.Student, error) {	page := 1
+	pageSize := 20
 
-	statement, err := s.DB.Prepare("SELECT id, name, email, age FROM students LIMIT $1")
+	if page < 1 {
+		page = 1
+	}
+	offset := (page - 1) * pageSize
+
+	statement, err := s.DB.Prepare("SELECT id, name, email, age FROM students LIMIT $1 OFFSET $2")
 	if err != nil {
 		return nil, err
 	}
 	defer statement.Close()
 
 	var students []types.Student
-	rows, err := statement.Query(20)
+	rows, err := statement.Query(pageSize, offset)
 	for rows.Next() {
 		var student types.Student
 		err := rows.Scan(&student.Id, &student.Name, &student.Email, &student.Age)
