@@ -77,7 +77,7 @@ func (h *StudentHandler) GetStudentById(w http.ResponseWriter, r *http.Request) 
 	}
 	slog.Info("Student Founded Successfully!", slog.String("student", student.Name))
 
-	err = response.WriteJson(w, http.StatusCreated, map[string]any{"Student": student})
+	err = response.WriteJson(w, http.StatusOK, map[string]any{"Student": student})
 	if err != nil {
 		response.WriteJson(w, http.StatusBadRequest, response.GeneralError(err))
 		return
