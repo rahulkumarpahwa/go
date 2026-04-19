@@ -56,7 +56,7 @@ func (s *Sqlite) CreateStudent(name string, email string, age int) (int64, error
 	return lastId, nil
 }
 
-func (s *Sqlite) GetStudentById(id int64) (*types.Student, error) {
+func (s *Sqlite) GetStudentById(id int) (*types.Student, error) {
 
 	var student types.Student
 	statement, err := s.DB.Prepare("SELECT name, email, age FROM students WHERE id = $1")
@@ -64,7 +64,7 @@ func (s *Sqlite) GetStudentById(id int64) (*types.Student, error) {
 		return nil, err
 	}
 	defer statement.Close()
-	student.Id = id
+	student.Id = int64(id)
 	err = statement.QueryRow(id).Scan(&student.Name, &student.Email, &student.Age)
 	if err != nil {
 		return nil, err

@@ -7,6 +7,7 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"strconv"
 
 	"github.com/go-playground/validator"
 	"github.com/rahulkumarpahwa/go/REST_API/internal/storage"
@@ -48,6 +49,35 @@ func (h *StudentHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
 	slog.Info("User Created Successfully!", slog.String("userID", fmt.Sprint(lastId)))
 
 	err = response.WriteJson(w, http.StatusCreated, map[string]any{"id": lastId})
+	if err != nil {
+		response.WriteJson(w, http.StatusBadRequest, response.GeneralError(err))
+		return
+	}
+
+}
+
+func (h *StudentHandler) GetStudentById(w http.ResponseWriter, r *http.Request) {
+	idstr := r.PathValue("id")
+
+	if idstr == "" {
+		response.WriteJson(w, http.StatusBadRequest, response.GeneralError(errors.New("Id not Found!")))
+		return
+	}
+
+	id, err := strconv.Atoi(idstr)
+	if err != nil {
+		response.WriteJson(w, http.StatusBadRequest, response.GeneralError(err))
+		return
+	}
+
+	student, err := h.Storage.GetStudentById(id)
+	if err != nil {
+		response.WriteJson(w, http.StatusInternalServerError, response.GeneralError(err))
+		return
+	}
+	slog.Info("Student Founded Successfully!", slog.String("student", student.Name))
+
+	err = response.WriteJson(w, http.StatusCreated, map[string]any{"Student": student})
 	if err != nil {
 		response.WriteJson(w, http.StatusBadRequest, response.GeneralError(err))
 		return
