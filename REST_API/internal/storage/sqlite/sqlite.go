@@ -75,3 +75,28 @@ func (s *Sqlite) GetStudentById(id int) (*types.Student, error) {
 
 	return &student, nil
 }
+
+func (s *Sqlite) GetStudentList() ([]types.Student, error) {
+
+	statement, err := s.DB.Prepare("SELECT id, name, email, age FROM students")
+	if err != nil {
+		return nil, err
+	}
+	defer statement.Close()
+
+	var students []types.Student
+	rows, err := statement.Query()
+	for rows.Next() {
+		var student types.Student
+		err := rows.Scan(&student.Id, &student.Name, &student.Email, &student.Age)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				return nil, fmt.Errorf("No Student Found with Id :  %v!", student.Id)
+			}
+			return nil, err
+		}
+		students = append(students, student)
+	}
+
+	return students, nil
+}
