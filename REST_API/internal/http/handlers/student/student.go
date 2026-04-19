@@ -3,6 +3,7 @@ package student
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
@@ -17,7 +18,7 @@ type StudentHandler struct {
 	Storage storage.Storage
 }
 
-func (h StudentHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
+func (h *StudentHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
 	var student types.Student
 	err := json.NewDecoder(r.Body).Decode(&student)
 	if errors.Is(err, io.EOF) {
@@ -39,13 +40,14 @@ func (h StudentHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = h.Storage.CreateStudent(student.Name, student.Email, student.Age)
+	lastId, err := h.Storage.CreateStudent(student.Name, student.Email, student.Age)
 	if err != nil {
 		response.WriteJson(w, http.StatusInternalServerError, response.GeneralError(err))
 		return
 	}
+	slog.Info("User Created Successfully!", slog.String("userID", fmt.Sprint(lastId)))
 
-	err = response.WriteJson(w, http.StatusCreated, response.Response{Status: response.StatusOK})
+	err = response.WriteJson(w, http.StatusCreated, map[string]any{"id": lastId})
 	if err != nil {
 		response.WriteJson(w, http.StatusBadRequest, response.GeneralError(err))
 		return

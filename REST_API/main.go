@@ -35,6 +35,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to Connect DB: %v", err)
 	}
+	defer db.DB.Close()
 
 	// Student Handler
 	studentHandler := student.StudentHandler{Storage: db}

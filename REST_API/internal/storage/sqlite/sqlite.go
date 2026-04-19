@@ -2,8 +2,9 @@ package sqlite
 
 import (
 	"database/sql"
-	_ "github.com/mattn/go-sqlite3"
+
 	"github.com/rahulkumarpahwa/go/REST_API/internal/config"
+	_ "modernc.org/sqlite"
 )
 
 type Sqlite struct {
@@ -11,7 +12,7 @@ type Sqlite struct {
 }
 
 func New(cfg *config.Config) (*Sqlite, error) {
-	db, err := sql.Open("sqlite3", cfg.StoragePath)
+	db, err := sql.Open("sqlite", cfg.StoragePath)
 	if err != nil {
 		return nil, err
 	}
@@ -35,13 +36,21 @@ func New(cfg *config.Config) (*Sqlite, error) {
 }
 
 func (s *Sqlite) CreateStudent(name string, email string, age int) (int64, error) {
-	var id int64
-	query := `INSERT INTO STUDENT (name, email, age) VALUES ($1, $2, $4) RETURNING id`
+	statement, err := s.DB.Prepare("INSERT INTO STUDENT (name, email, age) VALUES ($1, $2, $4)")
+	if err != nil {
+		return 0, err
+	}
+	defer statement.Close()
 
-	err := s.DB.QueryRow(query).Scan(&id)
+	result, err := statement.Exec(name, email, age)
 	if err != nil {
 		return 0, err
 	}
 
-	return id, nil
+	lastId, err := result.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+
+	return lastId, nil
 }
