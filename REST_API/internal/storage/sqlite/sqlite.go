@@ -2,6 +2,7 @@ package sqlite
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/rahulkumarpahwa/go/REST_API/internal/config"
 	"github.com/rahulkumarpahwa/go/REST_API/internal/types"
@@ -59,15 +60,18 @@ func (s *Sqlite) CreateStudent(name string, email string, age int) (int64, error
 func (s *Sqlite) GetStudentById(id int) (*types.Student, error) {
 
 	var student types.Student
-	statement, err := s.DB.Prepare("SELECT name, email, age FROM students WHERE id = $1")
+	statement, err := s.DB.Prepare("SELECT id, name, email, age FROM students WHERE id = $1 LIMIT 1")
 	if err != nil {
 		return nil, err
 	}
 	defer statement.Close()
-	student.Id = int64(id)
-	err = statement.QueryRow(id).Scan(&student.Name, &student.Email, &student.Age)
+	err = statement.QueryRow(id).Scan(&student.Id, &student.Name, &student.Email, &student.Age)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("No Student Found with Id :  %v!", id)
+		}
 		return nil, err
 	}
+
 	return &student, nil
 }
