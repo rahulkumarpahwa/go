@@ -31,20 +31,19 @@ func main() {
 	// logger
 
 	// database setup
-	_, err = sqlite.New(cfg)
+	db, err := sqlite.New(cfg)
 	if err != nil {
 		log.Fatalf("Failed to Connect DB: %v", err)
 	}
 
-	// Student Storage
-	
-
+	// Student Handler
+	studentHandler := student.StudentHandler{Storage: db}
 
 	// setup router
 	router := http.NewServeMux()
 
 	router.HandleFunc("GET /", Health)
-	router.HandleFunc("POST /api/students", )
+	router.HandleFunc("POST /api/students", studentHandler.CreateStudent)
 
 	// setup server
 	server := http.Server{

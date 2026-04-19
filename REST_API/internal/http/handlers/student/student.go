@@ -8,17 +8,16 @@ import (
 	"net/http"
 
 	"github.com/go-playground/validator"
-	"github.com/rahulkumarpahwa/go/REST_API/internal/storage/sqlite"
+	"github.com/rahulkumarpahwa/go/REST_API/internal/storage"
 	"github.com/rahulkumarpahwa/go/REST_API/internal/types"
 	"github.com/rahulkumarpahwa/go/REST_API/internal/utils/response"
 )
 
 type StudentHandler struct {
-	Sqlite *sqlite.Sqlite
+	Storage storage.Storage
 }
 
-
-func CreateStudent(w http.ResponseWriter, r *http.Request) {
+func (h StudentHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
 	var student types.Student
 	err := json.NewDecoder(r.Body).Decode(&student)
 	if errors.Is(err, io.EOF) {
@@ -40,7 +39,11 @@ func CreateStudent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// DB call to create 
+	_, err = h.Storage.CreateStudent(student.Name, student.Email, student.Age)
+	if err != nil {
+		response.WriteJson(w, http.StatusInternalServerError, response.GeneralError(err))
+		return
+	}
 
 	err = response.WriteJson(w, http.StatusCreated, response.Response{Status: response.StatusOK})
 	if err != nil {

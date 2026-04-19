@@ -34,8 +34,14 @@ func New(cfg *config.Config) (*Sqlite, error) {
 	return &Sqlite{DB: db}, nil
 }
 
-func CreateStudent(name string, email string, age int) (int64, error) {
+func (s *Sqlite) CreateStudent(name string, email string, age int) (int64, error) {
+	var id int64
 	query := `INSERT INTO STUDENT (name, email, age) VALUES ($1, $2, $4) RETURNING id`
 
-	return 0, nil
+	err := s.DB.QueryRow(query).Scan(&id)
+	if err != nil {
+		return 0, err
+	}
+
+	return id, nil
 }
