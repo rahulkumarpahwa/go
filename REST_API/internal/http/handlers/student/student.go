@@ -116,14 +116,30 @@ func (h *StudentHandler) UpdateStudent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	student, err := h.Storage.UpdateStudent(id, name, age)
+	var student struct {
+		Name string `json:"name"`
+		Age  int    `json:"age"`
+	}
+	err = json.NewDecoder(r.Body).Decode(&student)
+	if errors.Is(err, io.EOF) {
+		slog.Error("Can't decode!")
+		response.WriteJson(w, http.StatusBadRequest, response.GeneralError(errors.New("Empty Body!")))
+		return
+	}
+
+	if err != nil {
+		response.WriteJson(w, http.StatusBadRequest, response.GeneralError(err))
+		return
+	}
+
+	updatedStudent, err := h.Storage.UpdateStudent(id, student.Name, student.Age)
 	if err != nil {
 		response.WriteJson(w, http.StatusInternalServerError, response.GeneralError(err))
 		return
 	}
-	slog.Info("Student Founded Successfully!", slog.String("student", student.Name))
+	slog.Info("Student Founded Successfully!", slog.String("student", updatedStudent.Name))
 
-	err = response.WriteJson(w, http.StatusOK, map[string]any{"Student": student})
+	err = response.WriteJson(w, http.StatusOK, map[string]any{"Student": updatedStudent})
 	if err != nil {
 		response.WriteJson(w, http.StatusBadRequest, response.GeneralError(err))
 		return
@@ -145,14 +161,14 @@ func (h *StudentHandler) DeleteStudent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	student, err := h.Storage.GetStudentById(id)
+	deletedId, err := h.Storage.DeleteStudent(id)
 	if err != nil {
 		response.WriteJson(w, http.StatusInternalServerError, response.GeneralError(err))
 		return
 	}
-	slog.Info("Student Founded Successfully!", slog.String("student", student.Name))
+	slog.Info("Student Deleted Successfully!", slog.String("student id: ", fmt.Sprint(id)))
 
-	err = response.WriteJson(w, http.StatusOK, map[string]any{"Student": student})
+	err = response.WriteJson(w, http.StatusOK, map[string]any{"Deleted Student Id": deletedId})
 	if err != nil {
 		response.WriteJson(w, http.StatusBadRequest, response.GeneralError(err))
 		return
