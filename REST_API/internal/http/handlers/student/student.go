@@ -137,9 +137,9 @@ func (h *StudentHandler) UpdateStudent(w http.ResponseWriter, r *http.Request) {
 		response.WriteJson(w, http.StatusInternalServerError, response.GeneralError(err))
 		return
 	}
-	slog.Info("Student Founded Successfully!", slog.String("student", updatedStudent.Name))
+	slog.Info("Student Updated Successfully!", slog.String("student", updatedStudent.Name))
 
-	err = response.WriteJson(w, http.StatusOK, map[string]any{"Student": updatedStudent})
+	err = response.WriteJson(w, http.StatusOK, map[string]any{"Updated Student": updatedStudent})
 	if err != nil {
 		response.WriteJson(w, http.StatusBadRequest, response.GeneralError(err))
 		return
@@ -166,7 +166,7 @@ func (h *StudentHandler) DeleteStudent(w http.ResponseWriter, r *http.Request) {
 		response.WriteJson(w, http.StatusInternalServerError, response.GeneralError(err))
 		return
 	}
-	slog.Info("Student Deleted Successfully!", slog.String("student id: ", fmt.Sprint(id)))
+	slog.Info("Student Deleted Successfully!", slog.String("student id", fmt.Sprint(id)))
 
 	err = response.WriteJson(w, http.StatusOK, map[string]any{"Deleted Student Id": deletedId})
 	if err != nil {
