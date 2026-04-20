@@ -76,7 +76,8 @@ func (s *Sqlite) GetStudentById(id int) (*types.Student, error) {
 	return &student, nil
 }
 
-func (s *Sqlite) GetStudentsList() ([]types.Student, error) {	page := 1
+func (s *Sqlite) GetStudentsList() ([]types.Student, error) {
+	page := 1
 	pageSize := 20
 
 	if page < 1 {
@@ -105,4 +106,28 @@ func (s *Sqlite) GetStudentsList() ([]types.Student, error) {	page := 1
 	}
 
 	return students, nil
+}
+
+func (s *Sqlite) UpdateStudent(id int, name string, age int) (*types.Student, error) {
+	statement, err := s.DB.Prepare("UPDATE students SET name = $1, age = $2 WHERE id = $3")
+	if err != nil {
+		return nil, err
+	}
+	defer statement.Close()
+
+	_, err = statement.Exec(name, age, id)
+	if err != nil {
+		return nil, err
+	}
+
+	// finding the updated student and sending back
+	student, err := s.GetStudentById(id)
+	if err != nil {
+		return nil, err
+	}
+	return student, nil
+}
+func (s *Sqlite) DeleteStudent(id int) (*types.Student, error) {
+
+	return nil, nil
 }
