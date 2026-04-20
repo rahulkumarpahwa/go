@@ -1,7 +1,9 @@
 package storage
 
-import "github.com/rahulkumarpahwa/go/TotionTUI/internal/types"
+import (
+	"github.com/rahulkumarpahwa/go/TotionTUI/internal/types"
+)
 
-type NotesStorage interface {
+type Notes interface {
 	CreateNotes(note *types.Notes) (*types.Notes, error)
 }
