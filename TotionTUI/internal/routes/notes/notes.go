@@ -16,7 +16,7 @@ type NotesHandler struct {
 	Logger  *log.Logger
 }
 
-func (h *NotesHandler) CreateNotes(w http.ResponseWriter, r *http.Request) {
+func (h *NotesHandler) CreateNote(w http.ResponseWriter, r *http.Request) {
 	var note types.NotesRequest
 
 	err := json.NewDecoder(r.Body).Decode(&note)
@@ -25,6 +25,8 @@ func (h *NotesHandler) CreateNotes(w http.ResponseWriter, r *http.Request) {
 		utils.WriteJson(w, http.StatusBadRequest, utils.Utils{Message: "Can't Decode the Note"})
 		return
 	}
+
+
 
 	
 

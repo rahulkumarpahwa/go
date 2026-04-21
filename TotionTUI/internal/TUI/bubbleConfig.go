@@ -1,11 +1,10 @@
 package bubble
 
 import (
-	"fmt"
-
 	"charm.land/bubbles/v2/textinput"
 	tea "charm.land/bubbletea/v2"
 	lipgloss "charm.land/lipgloss/v2"
+	"fmt"
 )
 
 type model struct {
@@ -14,19 +13,13 @@ type model struct {
 }
 
 var (
-	focusedStyle        = lipgloss.NewStyle().Foreground(lipgloss.Color("#7c12e0"))
-	blurredStyle        = lipgloss.NewStyle().Foreground(lipgloss.Color("#7c12e0"))
-	// cursorStyle         = focusedStyle
-	// noStyle             = lipgloss.NewStyle()
-	// helpStyle           = blurredStyle
-	// cursorModeHelpStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("244"))
-
-	// focusedButton = focusedStyle.Render("[ Submit ]")
-	// blurredButton = fmt.Sprintf("[ %s ]", blurredStyle.Render("Submit"))
+	focusedStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#7c12e0"))
+	blurredStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#7c12e0"))
 )
 
 func Initialization() model {
 
+	// Text Input Setup
 	ti := textinput.New()
 	ti.Placeholder = "What would you like to name Note?"
 	ti.SetVirtualCursor(true)
@@ -34,6 +27,7 @@ func Initialization() model {
 	ti.CharLimit = 156
 	ti.SetWidth(ti.CharLimit)
 
+	// Input Styles Setup
 	s := ti.Styles()
 	s.Cursor.Color = lipgloss.Color("#7c12e0")
 	s.Cursor.Blink = true
@@ -73,6 +67,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.CreateFileInputVisible = true
 			return m, nil
 
+		case "ctrl+s", "enter":
+			
 		}
 	}
 
