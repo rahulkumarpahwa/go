@@ -1,18 +1,10 @@
 package bubble
 
 import (
-	// "fmt"
-
-	"fmt"
-
+	"charm.land/bubbles/v2/textinput"
 	tea "charm.land/bubbletea/v2"
 	lipgloss "charm.land/lipgloss/v2"
-
-	"charm.land/bubbles/v2/textinput"
-)
-
-type (
-	errMsg error
+	"fmt"
 )
 
 type model struct {
@@ -23,10 +15,10 @@ type model struct {
 func Initialization() model {
 	ti := textinput.New()
 	ti.Placeholder = "What would you like to name Note?"
-	ti.SetVirtualCursor(false)
+	// ti.SetVirtualCursor(false)
 	ti.Focus()
 	ti.CharLimit = 156
-	ti.SetWidth(156)
+	ti.SetWidth(ti.CharLimit)
 
 	return model{
 		textInput:              ti,
@@ -39,6 +31,8 @@ func (m model) Init() tea.Cmd {
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd 
+	
 	switch msg := msg.(type) {
 
 	// Is it a key press?
@@ -59,7 +53,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
-	return m, nil
+	if m.CreateFileInputVisible {
+		m.textInput, cmd = m.textInput.Update(msg)
+	}
+	return m, cmd
 }
 
 func (m model) View() tea.View {
@@ -88,6 +85,7 @@ func (m model) View() tea.View {
 		Foreground(lipgloss.Color("#f91616")).Padding(0, 1, 0).Border(lipgloss.ASCIIBorder())
 	help := "\nControls:"
 	help += "\nNew-File:Ctrl + N, List:Ctrl+L, Back/Save:ESC, Save:Ctrl+S, Quit:Ctrl+Q.\n"
+	// rendering the style
 	help = style.Render(help)
 
 	// Combined String

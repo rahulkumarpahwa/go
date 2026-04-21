@@ -12,16 +12,11 @@ import (
 	"time"
 
 	tea "charm.land/bubbletea/v2"
-	"github.com/rahulkumarpahwa/go/TotionTUI/internal/bubble"
+	bubble "github.com/rahulkumarpahwa/go/TotionTUI/internal/TUI"
 )
 
 func main() {
-
-	p := tea.NewProgram(bubble.Initialization())
-	if _, err := p.Run(); err != nil {
-		fmt.Printf("Alas, there's been an error: %v", err)
-		os.Exit(1)
-	}
+	// A. First Starting the Server
 
 	// config
 
@@ -47,11 +42,18 @@ func main() {
 
 	go func() {
 		err := server.ListenAndServe()
-		if err != nil && err != http.ErrServerClosed { 
+		if err != nil && err != http.ErrServerClosed {
 			// http.ErrServerClosed is the general error which ListenAndServe gives on closing just to show it is closing.
 			log.Fatalf("Server didn't start, %v", err)
 		}
 	}()
+
+	// B. Second Showing : Bubble Tea TUI
+	p := tea.NewProgram(bubble.Initialization())
+	if _, err := p.Run(); err != nil {
+		fmt.Printf("Alas, there's been an error: %v", err)
+		os.Exit(1)
+	}
 
 	<-signalChannel
 
@@ -62,4 +64,5 @@ func main() {
 	server.Shutdown(ctx)
 	slog.Info("~ Server Shutdown Successfully ~")
 
+	
 }
