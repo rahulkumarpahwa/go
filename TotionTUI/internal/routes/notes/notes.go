@@ -26,6 +26,13 @@ func (h *NotesHandler) CreateNote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	lastId, err := h.Storage.CreateNote(note.Title, note.Description)
+	if err != nil {
+		slog.Error(err.Error())
+		utils.WriteJson(w, http.StatusInternalServerError, utils.Utils{Message: "Can't Storage the Note"})
+		return
+	}
+	utils.WriteJson(w, http.StatusCreated, utils.Utils{Message: "created note successfully!", Data: map[string]any{"Created Note Id": lastId}})
 }
 
 func (h *NotesHandler) GetNotes(w http.ResponseWriter, r *http.Request) {
