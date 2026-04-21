@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/rahulkumarpahwa/go/TotionTUI/config"
+	"github.com/rahulkumarpahwa/go/TotionTUI/internal/types"
 	_ "modernc.org/sqlite"
 )
 
@@ -65,4 +66,38 @@ func (ns *NotesStorage) CreateNote(title, description string) (*int64, error) {
 	}
 
 	return &lastId, nil
+}
+
+func (ns *NotesStorage) GetNotes(pageNo int, pageSize int) ([]types.Notes, error) {
+	if pageSize == 0 {
+		pageSize = 20 // default limit
+	}
+	if pageNo < 1 {
+		pageNo = 1
+	}
+	offset := (pageNo - 1) * pageSize
+
+	statement, err := ns.DB.Prepare("Select id, title, description, created_at, updated_at FROM notes LIMIT $1 OFFSET $2")
+
+	if err != nil {
+		return nil, err
+	}
+	defer statement.Close()
+
+	rows, err := statement.Query(pageSize, offset)
+	if err != nil {
+		return nil, err
+	}
+
+	var notes []types.Notes
+	for rows.Next() {
+		var note types.Notes
+		err := rows.Scan(&note.Id, &note.Title, &note.Description, &note.CreatedAt, &note.UpdatedAt)
+		if err != nil {
+			return nil, err
+		}
+		notes = append(notes, note)
+	}
+
+	return notes, nil
 }

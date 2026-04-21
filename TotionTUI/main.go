@@ -43,6 +43,7 @@ func main() {
 
 	// routes
 	notesHandler := notes.NotesHandler{Storage: &notesStorage}
+	router.HandleFunc("GET /api/notes", notesHandler.GetNotes)
 	router.HandleFunc("POST /api/notes", notesHandler.CreateNote)
 
 	// Listener and Serve

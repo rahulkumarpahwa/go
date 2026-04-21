@@ -26,8 +26,16 @@ func (h *NotesHandler) CreateNote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+}
 
+func (h *NotesHandler) GetNotes(w http.ResponseWriter, r *http.Request) {
+	var note types.NotesRequest
 
-	
+	err := json.NewDecoder(r.Body).Decode(&note)
+	if err != nil {
+		slog.Error(err.Error())
+		utils.WriteJson(w, http.StatusBadRequest, utils.Utils{Message: "Can't Decode the Note"})
+		return
+	}
 
 }
