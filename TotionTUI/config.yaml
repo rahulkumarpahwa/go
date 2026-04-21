@@ -1,0 +1,4 @@
+env: "dev"
+storage_path: "database/database.db"
+http_server:
+  address: "localhost:8080"

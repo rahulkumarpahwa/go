@@ -47,7 +47,7 @@ func Open(cfg *config.Config) (*sql.DB, error) {
 	return DB, nil
 }
 
-func (ns *NotesStorage) CreateNote(title string, description string) (*int64, error) {
+func (ns *NotesStorage) CreateNote(title, description string) (*int64, error) {
 	statement, err := ns.DB.Prepare("INSERT INTO notes (title, description) VALUES ($1, $2)")
 	if err != nil {
 		return nil, err

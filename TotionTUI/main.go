@@ -12,6 +12,7 @@ import (
 	"time"
 
 	tea "charm.land/bubbletea/v2"
+	"github.com/rahulkumarpahwa/go/TotionTUI/config"
 	bubble "github.com/rahulkumarpahwa/go/TotionTUI/internal/TUI"
 	"github.com/rahulkumarpahwa/go/TotionTUI/internal/routes/notes"
 	"github.com/rahulkumarpahwa/go/TotionTUI/internal/storage"
@@ -19,12 +20,12 @@ import (
 
 func main() {
 	// A. First Starting the Server
-	
-	// config
 
+	// config
+	cfg := config.MustExec()
 
 	//setting the DB
-	DB, err := storage.Open()
+	DB, err := storage.Open(cfg)
 	if err != nil {
 		log.Fatalf("DB didn't open, %v", err)
 	}
@@ -41,12 +42,12 @@ func main() {
 	})
 
 	// routes
-	notesHandler := notes.NotesHandler{Storage: notesStorage}
+	notesHandler := notes.NotesHandler{Storage: &notesStorage}
 	router.HandleFunc("POST /api/notes", notesHandler.CreateNote)
 
 	// Listener and Serve
 	server := http.Server{
-		Addr:        "localhost:8080",
+		Addr:        cfg.Address,
 		Handler:     router,
 		ReadTimeout: time.Duration(time.Second * 20),
 		IdleTimeout: time.Duration(time.Second * 20),
