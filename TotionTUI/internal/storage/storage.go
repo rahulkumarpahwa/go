@@ -4,5 +4,5 @@ import "github.com/rahulkumarpahwa/go/TotionTUI/internal/types"
 
 type Notes interface {
 	CreateNote(title, description string) (*int64, error)
-	GetNotes(pageNo int, pageSize int) ([]types.Notes, error)
+	GetNotes(pageNo int64, pageSize int64) ([]types.Notes, error)
 }

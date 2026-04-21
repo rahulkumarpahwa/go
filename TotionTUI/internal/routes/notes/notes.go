@@ -5,6 +5,7 @@ import (
 	"log"
 	"log/slog"
 	"net/http"
+	"strconv"
 
 	"github.com/rahulkumarpahwa/go/TotionTUI/internal/storage"
 	"github.com/rahulkumarpahwa/go/TotionTUI/internal/types"
@@ -36,13 +37,39 @@ func (h *NotesHandler) CreateNote(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *NotesHandler) GetNotes(w http.ResponseWriter, r *http.Request) {
-	var note types.NotesRequest
+	query := r.URL.Query()
+	var pageSize int64 = 0
+	var pageNo int64 = 0
 
-	err := json.NewDecoder(r.Body).Decode(&note)
+	pageNoStr := query.Get("pageNo")
+	pageSizeStr := query.Get("pageSize")
+
+	if pageSizeStr != "" {
+		var err error
+		pageSize, err = strconv.ParseInt(pageSizeStr, 10, 64)
+		if err != nil {
+			slog.Error(err.Error())
+			utils.WriteJson(w, http.StatusBadRequest, utils.Utils{Message: "Can't Decode the PageSize"})
+			return
+		}
+	}
+
+	if pageNoStr != "" {
+		var err error
+		pageNo, err = strconv.ParseInt(pageNoStr, 10, 64)
+		if err != nil {
+			slog.Error(err.Error())
+			utils.WriteJson(w, http.StatusBadRequest, utils.Utils{Message: "Can't Decode the PageNo"})
+			return
+		}
+	}
+
+	notes, err := h.Storage.GetNotes(pageNo, pageSize)
 	if err != nil {
 		slog.Error(err.Error())
-		utils.WriteJson(w, http.StatusBadRequest, utils.Utils{Message: "Can't Decode the Note"})
+		utils.WriteJson(w, http.StatusBadRequest, utils.Utils{Message: "Can't Get the Notes!"})
 		return
 	}
 
+	utils.WriteJson(w, http.StatusOK, utils.Utils{Message: "Got Notes Successfully!", Data: map[string]any{"Notes": notes}})
 }

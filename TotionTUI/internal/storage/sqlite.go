@@ -68,9 +68,12 @@ func (ns *NotesStorage) CreateNote(title, description string) (*int64, error) {
 	return &lastId, nil
 }
 
-func (ns *NotesStorage) GetNotes(pageNo int, pageSize int) ([]types.Notes, error) {
+func (ns *NotesStorage) GetNotes(pageNo int64, pageSize int64) ([]types.Notes, error) {
 	if pageSize == 0 {
 		pageSize = 20 // default limit
+	}
+	if pageSize > 50 {
+		pageSize = 50 // upper limit
 	}
 	if pageNo < 1 {
 		pageNo = 1
