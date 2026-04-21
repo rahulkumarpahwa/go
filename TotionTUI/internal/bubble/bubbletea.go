@@ -3,32 +3,39 @@ package bubble
 import (
 	// "fmt"
 
+	"fmt"
+
 	tea "charm.land/bubbletea/v2"
 	lipgloss "charm.land/lipgloss/v2"
+
+	"charm.land/bubbles/v2/textinput"
+)
+
+type (
+	errMsg error
 )
 
 type model struct {
-	choices  []string         // items on the to-do list
-	cursor   int              // which to-do list item our cursor is pointing at
-	selected map[int]struct{} // which to-do items are selected
+	CreateFileInputVisible bool
+	textInput              textinput.Model
 }
 
 func Initialization() model {
+	ti := textinput.New()
+	ti.Placeholder = "What would you like to name Note?"
+	ti.SetVirtualCursor(false)
+	ti.Focus()
+	ti.CharLimit = 156
+	ti.SetWidth(156)
+
 	return model{
-		// Our to-do list is a grocery list
-		choices: []string{"Buy carrots", "Buy celery", "Buy kohlrabi"},
-
-		// A map which indicates which choices are selected. We're using
-		// the  map like a mathematical set. The keys refer to the indexes
-		// of the `choices` slice, above.
-		selected: make(map[int]struct{}),
+		textInput:              ti,
+		CreateFileInputVisible: false,
 	}
-
 }
 
 func (m model) Init() tea.Cmd {
-	// Just return `nil`, which means "no I/O right now, please."
-	return nil
+	return textinput.Blink
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -44,32 +51,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c", "q":
 			return m, tea.Quit
 
-		// The "up" and "k" keys move the cursor up
-		case "up", "k":
-			if m.cursor > 0 {
-				m.cursor--
-			}
+		// These keys should add a new note.
+		case "ctrl+n", "n":
+			m.CreateFileInputVisible = true
+			return m, nil
 
-		// The "down" and "j" keys move the cursor down
-		case "down", "j":
-			if m.cursor < len(m.choices)-1 {
-				m.cursor++
-			}
-
-		// The "enter" key and the space bar toggle the selected state
-		// for the item that the cursor is pointing at.
-		case "enter", "space":
-			_, ok := m.selected[m.cursor]
-			if ok {
-				delete(m.selected, m.cursor)
-			} else {
-				m.selected[m.cursor] = struct{}{}
-			}
 		}
 	}
 
-	// Return the updated model to the Bubble Tea runtime for processing.
-	// Note that we're not returning a command.
 	return m, nil
 }
 
@@ -88,38 +77,22 @@ func (m model) View() tea.View {
 	// rendering the style
 	s = style.Render(s)
 
-	// Iterate over our choices
-	// for i, choice := range m.choices {
+	// Notes Part
+	notesView := ""
+	if m.CreateFileInputVisible {
+		notesView = m.textInput.View()
+	}
 
-	// 	// Is the cursor pointing at this choice?
-	// 	cursor := " " // no cursor
-	// 	if m.cursor == i {
-	// 		cursor = ">" // cursor!
-	// 	}
-
-	// 	// Is this choice selected?
-	// 	checked := " " // not selected
-	// 	if _, ok := m.selected[i]; ok {
-	// 		checked = "x" // selected!
-	// 	}
-
-	// 	// Render the row
-	// 	s += fmt.Sprintf("%s [%s] %d %s\n", cursor, checked, i+1, choice)
-	// }
-
-	s += "\n\n"
-
+	// The footer
 	style = lipgloss.NewStyle().
 		Foreground(lipgloss.Color("#f91616")).Padding(0, 1, 0).Border(lipgloss.ASCIIBorder())
-	// The footer
 	help := "\nControls:"
 	help += "\nNew-File:Ctrl + N, List:Ctrl+L, Back/Save:ESC, Save:Ctrl+S, Quit:Ctrl+Q.\n"
-
 	help = style.Render(help)
 
-	// adding help to string s
-	s += help
+	// Combined String
+	finalString := fmt.Sprintf("%s\n%s\n%s", s, notesView, help)
 
 	// Send the UI for rendering
-	return tea.NewView(s)
+	return tea.NewView(finalString)
 }
