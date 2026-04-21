@@ -52,6 +52,7 @@ func Initialization() model {
 		}
 		m.textInputs[i] = t
 	}
+
 	return m
 }
 
@@ -80,6 +81,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case "ctrl+s", "enter":
 
+			return m, nil
+
+		case "ctrl+b":
+			m.CreateFileInputVisible = false
 			return m, nil
 
 		case "up", "down":
@@ -142,14 +147,10 @@ func (m model) View() tea.View {
 	notesView := ""
 	var b strings.Builder
 	if m.CreateFileInputVisible {
-		b.WriteString("Creating New Note....\n\n")
+		b.WriteString("\nCreating New Note....\n\n")
 
 		for i := range m.textInputs {
-			b.WriteString(m.textInputs[i].View())
-			b.WriteRune('\n')
-			if i < len(m.textInputs)-1 {
-				b.WriteRune('\n')
-			}
+			b.WriteString(m.textInputs[i].View() + "\n")
 		}
 	}
 
@@ -161,13 +162,13 @@ func (m model) View() tea.View {
 		Padding(0, 1, 0).
 		Border(lipgloss.NormalBorder())
 
-	help := "Controls:"
+	help := "Controls:  "
 	help += "New-File:Ctrl + N, List:Ctrl+L, Back/Save:ESC, Save:Ctrl+S, Quit:Ctrl+Q."
 	// rendering the style
 	help = style.Render(help)
 
 	// Combined String
-	finalString := fmt.Sprintf("%s\n\n%s\n\n%s\n", s, notesView, help)
+	finalString := fmt.Sprintf("%s\n%s\n%s\n", s, notesView, help)
 
 	// Send the UI for rendering
 	return tea.NewView(finalString)
