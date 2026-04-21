@@ -44,6 +44,8 @@ func (h *NotesHandler) GetNotes(w http.ResponseWriter, r *http.Request) {
 	pageNoStr := query.Get("pageNo")
 	pageSizeStr := query.Get("pageSize")
 
+	// todo : Write the single method to parse query params under utils
+
 	if pageSizeStr != "" {
 		var err error
 		pageSize, err = strconv.ParseInt(pageSizeStr, 10, 64)

@@ -1,15 +1,18 @@
 package bubble
 
 import (
+	"fmt"
+	"strings"
+
 	"charm.land/bubbles/v2/textinput"
 	tea "charm.land/bubbletea/v2"
 	lipgloss "charm.land/lipgloss/v2"
-	"fmt"
 )
 
 type model struct {
 	CreateFileInputVisible bool
-	textInput              textinput.Model
+	textInputs             []textinput.Model
+	focusIndex             int
 }
 
 var (
@@ -18,29 +21,38 @@ var (
 )
 
 func Initialization() model {
-
-	// Text Input Setup
-	ti := textinput.New()
-	ti.Placeholder = "What would you like to name Note?"
-	ti.SetVirtualCursor(true)
-	ti.Focus()
-	ti.CharLimit = 156
-	ti.SetWidth(ti.CharLimit)
-
-	// Input Styles Setup
-	s := ti.Styles()
-	s.Cursor.Color = lipgloss.Color("#7c12e0")
-	s.Cursor.Blink = true
-	s.Focused.Prompt = focusedStyle
-	s.Focused.Text = focusedStyle
-	s.Blurred.Prompt = blurredStyle
-	s.Focused.Text = focusedStyle
-	ti.SetStyles(s)
-
-	return model{
-		textInput:              ti,
+	m := model{
+		textInputs:             make([]textinput.Model, 2),
 		CreateFileInputVisible: false,
 	}
+
+	// Text Input Setup
+	var t textinput.Model
+	for i := range m.textInputs {
+		t = textinput.New()
+		t.CharLimit = 0
+		t.SetWidth(156)
+
+		s := t.Styles()
+		s.Cursor.Color = lipgloss.Color("#7c12e0")
+		s.Focused.Prompt = focusedStyle
+		s.Focused.Text = focusedStyle
+		s.Blurred.Prompt = blurredStyle
+		s.Focused.Text = focusedStyle
+		t.SetStyles(s)
+
+		// Input Styles Setup
+		switch i {
+		case 0:
+			t.Placeholder = "What would you like to name it?"
+			t.Focus()
+		case 1:
+			t.Placeholder = "Write the Content Here........"
+			t.CharLimit = 0
+		}
+		m.textInputs[i] = t
+	}
+	return m
 }
 
 func (m model) Init() tea.Cmd {
@@ -48,7 +60,6 @@ func (m model) Init() tea.Cmd {
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
 
@@ -59,7 +70,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 
 		// These keys should exit the program.
-		case "ctrl+c", "q":
+		case "ctrl+c", "esc":
 			return m, tea.Quit
 
 		// These keys should add a new note.
@@ -68,14 +79,48 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 
 		case "ctrl+s", "enter":
-			
+
+			return m, nil
+
+		case "up", "down":
+			s := msg.String()
+			// Cycle indexes
+			if s == "up" {
+				m.focusIndex--
+			} else {
+				m.focusIndex++
+			}
+
+			if m.focusIndex >= len(m.textInputs) {
+				m.focusIndex = 0
+			} else if m.focusIndex < 0 {
+				m.focusIndex = len(m.textInputs) - 1
+			}
+
+			cmds := make([]tea.Cmd, len(m.textInputs))
+			for i := 0; i <= len(m.textInputs)-1; i++ {
+				if i == m.focusIndex {
+					// Set focused state
+					cmds[i] = m.textInputs[i].Focus()
+					continue
+				}
+				// Remove focused state
+				m.textInputs[i].Blur()
+			}
+			return m, tea.Batch(cmds...)
 		}
 	}
 
+	cmds := make([]tea.Cmd, len(m.textInputs))
 	if m.CreateFileInputVisible {
-		m.textInput, cmd = m.textInput.Update(msg)
+
+		// Only text inputs with Focus() set will respond, so it's safe to simply
+		// update all of them here without any further logic.
+		for i := range m.textInputs {
+			m.textInputs[i], cmds[i] = m.textInputs[i].Update(msg)
+		}
 	}
-	return m, cmd
+	return m, tea.Batch(cmds...)
 }
 
 func (m model) View() tea.View {
@@ -93,16 +138,22 @@ func (m model) View() tea.View {
 	// rendering the style
 	s = style.Render(s)
 
-	// Heading Of Menus
-	menuHeading := ""
-
 	// Notes Part
 	notesView := ""
+	var b strings.Builder
 	if m.CreateFileInputVisible {
-		menuHeading += "\n Create Mode\n"
-		style.Render(menuHeading)
-		notesView = m.textInput.View()
+		b.WriteString("Creating New Note....\n\n")
+
+		for i := range m.textInputs {
+			b.WriteString(m.textInputs[i].View())
+			b.WriteRune('\n')
+			if i < len(m.textInputs)-1 {
+				b.WriteRune('\n')
+			}
+		}
 	}
+
+	notesView = b.String()
 
 	// The footer
 	style = lipgloss.NewStyle().
@@ -116,7 +167,7 @@ func (m model) View() tea.View {
 	help = style.Render(help)
 
 	// Combined String
-	finalString := fmt.Sprintf("%s\n\n%s%s\n\n%s\n", s, menuHeading, notesView, help)
+	finalString := fmt.Sprintf("%s\n\n%s\n\n%s\n", s, notesView, help)
 
 	// Send the UI for rendering
 	return tea.NewView(finalString)
