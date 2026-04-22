@@ -1,0 +1,1 @@
+this is the new line!this is text converted to byte and then written to the file.

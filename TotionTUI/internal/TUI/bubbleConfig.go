@@ -79,8 +79,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.CreateFileInputVisible = true
 			return m, nil
 
-		case "ctrl+s", "enter":
-
+		case "enter": 
 			return m, nil
 
 		case "ctrl+b":
@@ -119,8 +118,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	cmds := make([]tea.Cmd, len(m.textInputs))
 	if m.CreateFileInputVisible {
 
-		// Only text inputs with Focus() set will respond, so it's safe to simply
-		// update all of them here without any further logic.
+		// Only text inputs with Focus() set will respond, so it's safe to simply update all of them here without any further logic.
 		for i := range m.textInputs {
 			m.textInputs[i], cmds[i] = m.textInputs[i].Update(msg)
 		}
