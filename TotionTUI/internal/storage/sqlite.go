@@ -104,3 +104,25 @@ func (ns *NotesStorage) GetNotes(pageNo int64, pageSize int64) ([]types.Notes, e
 
 	return notes, nil
 }
+
+func (ns *NotesStorage) DeleteNote(id int) error {
+
+	statement, err := ns.DB.Prepare("DELETE FROM notes WHERE id = $1")
+
+	if err != nil {
+		return err
+	}
+	defer statement.Close()
+
+	rows, err := statement.Exec(id)
+	if err != nil {
+		return err
+	}
+
+	_, err = rows.LastInsertId()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
