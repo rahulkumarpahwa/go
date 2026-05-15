@@ -126,3 +126,21 @@ func (ns *NotesStorage) DeleteNoteById(id int) error {
 
 	return nil
 }
+
+func (ns *NotesStorage) GetNoteById(id int) (*types.Notes, error) {
+
+	statement, err := ns.DB.Prepare("SELECT id, title, description, created_at, updated_at FROM notes WHERE id = $1")
+
+	if err != nil {
+		return nil, err
+	}
+	defer statement.Close()
+
+	var note *types.Notes
+	err = statement.QueryRow(id).Scan(&note)
+	if err != nil {
+		return nil, err
+	}
+
+	return note, nil
+}
